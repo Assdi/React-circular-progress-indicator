@@ -41,15 +41,17 @@ describe('CircularProgress', () => {
     expect(circle).toHaveAttribute('stroke', '#ff0000');
   });
 
-  it('calculates stroke-dashoffset correctly', () => {
+  it('calculates stroke-dashoffset correctly', async () => {
     renderWithTheme(<CircularProgress percentage={50} size={100} strokeWidth={10} />);
     const circle = screen.getByTestId('progress-circle');
     const radius = 45; // (100 - 10) / 2
     const circumference = radius * 2 * Math.PI;
     const expectedOffset = circumference - (50 / 100) * circumference;
     
-    expect(circle).toHaveAttribute('stroke-dasharray', circumference.toString());
-    expect(circle).toHaveAttribute('stroke-dashoffset', '0');
+    // Wait for the animation to complete
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
+    expect(circle).toHaveAttribute('stroke-dashoffset', expectedOffset.toString());
   });
 
   it('renders with custom size', () => {

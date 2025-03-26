@@ -1,70 +1,94 @@
-import React from 'react';
-import { ThemeProvider } from 'styled-components';
-import { CircularProgressWrapper, ProgressText, ProgressCircle } from './styles';
+import React, { useEffect, useState } from 'react';
+import { CircularProgressWrapper } from './styles';
 import { defaultTheme } from './theme';
 
 const CircularProgress = ({ 
-  percentage = 0,
-  color,
+  percentage = 0, 
+  color = '#007AFF',
+  size = 100,
+  strokeWidth = 10,
+  animationDuration = 0.3,
   backgroundColor,
-  textColor,
-  size = 'medium',
-  strokeWidth = 'regular',
   bold = false,
   theme = defaultTheme
 }) => {
-  const getSize = () => {
-    return typeof size === 'number' ? size : theme.sizes[size];
-  };
+  const [isVisible, setIsVisible] = useState(false);
+  const [currentPercentage, setCurrentPercentage] = useState(0);
 
-  const getStrokeWidth = () => {
-    return typeof strokeWidth === 'number' ? strokeWidth : theme.strokeWidths[strokeWidth];
+  useEffect(() => {
+    setIsVisible(true);
+    const timer = setTimeout(() => {
+      setCurrentPercentage(percentage);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [percentage]);
+
+  // Handle theme-based sizing
+  const getSize = () => {
+    if (typeof size === 'string' && theme.sizes[size]) {
+      return theme.sizes[size];
+    }
+    return size;
   };
 
   const actualSize = getSize();
-  const actualStrokeWidth = getStrokeWidth();
-  const radius = (actualSize - actualStrokeWidth) / 2;
+  const radius = (actualSize - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const strokeDashoffset = circumference - (currentPercentage / 100) * circumference;
+
+  const progressStyle = {
+    transform: 'rotate(-90deg)',
+    transformOrigin: '50% 50%',
+    transition: `stroke-dashoffset ${animationDuration}s ease-in-out`
+  };
+
+  const containerStyle = {
+    opacity: isVisible ? 1 : 0,
+    transform: `scale(${isVisible ? 1 : 0.8})`,
+    transition: `opacity ${animationDuration}s ease-in-out, transform ${animationDuration}s ease-in-out`
+  };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CircularProgressWrapper data-testid="circular-progress">
-        <svg width={actualSize} height={actualSize}>
-          <circle
-            stroke={backgroundColor || theme.colors.background}
-            strokeWidth={actualStrokeWidth}
-            fill="transparent"
-            r={radius}
-            cx={actualSize / 2}
-            cy={actualSize / 2}
-          />
-          <ProgressCircle
-            data-testid="progress-circle"
-            stroke={color || theme.colors.primary}
-            strokeWidth={actualStrokeWidth}
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            fill="transparent"
-            r={radius}
-            cx={actualSize / 2}
-            cy={actualSize / 2}
-          />
-          <ProgressText
-            x="50%"
-            y="50%"
-            textAnchor="middle"
-            dy=".3em"
-            fontSize={`${actualSize / 4}px`}
-            textColor={textColor}
-            bold={bold}
-          >
-            {percentage}%
-          </ProgressText>
-        </svg>
-      </CircularProgressWrapper>
-    </ThemeProvider>
+    <CircularProgressWrapper data-testid="circular-progress" style={containerStyle}>
+      <svg width={actualSize} height={actualSize}>
+        <circle
+          data-testid="background-circle"
+          stroke={backgroundColor || theme.colors.background}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          r={radius}
+          cx={actualSize / 2}
+          cy={actualSize / 2}
+        />
+        <circle
+          data-testid="progress-circle"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          fill="transparent"
+          r={radius}
+          cx={actualSize / 2}
+          cy={actualSize / 2}
+          style={progressStyle}
+        />
+        <text 
+          data-testid="progress-text"
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dy=".3em"
+          fontSize={`${size / 4}px`}
+          fontWeight={bold ? '600' : '400'}
+          style={{
+            transition: `opacity ${animationDuration}s ease-in-out`
+          }}
+        >
+          {Math.round(percentage)}%
+        </text>
+      </svg>
+    </CircularProgressWrapper>
   );
 };
 

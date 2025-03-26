@@ -49,4 +49,25 @@ describe('CircularProgress', () => {
     expect(svg).toHaveAttribute('width', size.toString());
     expect(svg).toHaveAttribute('height', size.toString());
   });
+
+  it('applies theme-based sizing', () => {
+    render(<CircularProgress size="large" />);
+    const svg = screen.getByTestId('circular-progress').querySelector('svg');
+    expect(svg).toHaveAttribute('width', '150');
+    expect(svg).toHaveAttribute('height', '150');
+  });
+
+  it('applies custom background color', () => {
+    const backgroundColor = '#cccccc';
+    render(<CircularProgress backgroundColor={backgroundColor} />);
+    const backgroundCircle = screen.getByTestId('circular-progress')
+      .querySelector('circle:first-child');
+    expect(backgroundCircle).toHaveAttribute('stroke', backgroundColor);
+  });
+
+  it('renders bold text when specified', () => {
+    render(<CircularProgress percentage={50} bold />);
+    const text = screen.getByText('50%');
+    expect(text).toHaveStyle('font-weight: 600');
+  });
 });

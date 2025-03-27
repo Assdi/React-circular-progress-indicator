@@ -15,7 +15,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "test:coverage": "react-scripts test --coverage --watchAll=false"
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "lint": "eslint src/**/*.{js,jsx}",
+    "lint:fix": "eslint src/**/*.{js,jsx} --fix",
+    "lint:stats": "eslint src/**/*.{js,jsx} --format table --max-warnings 0 || exit 0"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -52,6 +55,10 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0"
+    "@testing-library/react": "^16.2.0",
+    "eslint": "^8.56.0",
+    "eslint-formatter-table": "^7.32.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-testing-library": "^6.2.0"
   }
 }
